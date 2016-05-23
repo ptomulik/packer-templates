@@ -1,0 +1,18 @@
+.pkg
+Gemfile.lock
+/vendor/
+/pkg/
+.rspec_system
+.bundle
+# Editor junk
+*.swp
+*.bkp
+*.bak
+*~
+# Vagrant
+.vagrant/
+# Packer
+packer_cache/
+output-*/
+packer_freebsd-*
+# TODO:
