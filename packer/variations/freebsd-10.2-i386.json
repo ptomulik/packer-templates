@@ -1,0 +1,10 @@
+{
+  "iso_checksum_type"  : "sha256",
+  "iso_checksum"       : "0e7094ae9f4f79d8955f193a1f2f5ab4f8b300e57eccd3b9bd959951ee079020",
+  "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/releases/i386/i386/ISO-IMAGES/10.2/FreeBSD-10.2-RELEASE-i386-disc1.iso",
+  "os_name"            : "freebsd",
+  "os_vers"            : "10.2",
+  "os_arch"            : "i386",
+  "virtualbox_os_type" : "FreeBSD",
+  "virtualbox_name"    : "freebsd-10.2-i386"
+}

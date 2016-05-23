@@ -1,0 +1,96 @@
+{
+  "variables": {
+    "iso_checksum_type":  "",
+    "iso_checksum":       "",
+    "iso_url":            "",
+    "os_name":            "",
+    "os_vers":            "",
+    "os_arch":            "",
+    "virtualbox_os_type": "",
+    "virtualbox_name":    "",
+    "csh_execute_command":"chmod +x {{.Path}}; env {{.Vars}} {{.Path}}"
+  },
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "{{user `chs_execute_command`}}" ,
+      "execute_command": "chmod +x {{.Path}}; env {{.Vars}} {{.Path}}",
+      "scripts" : [
+        "packer/scripts/freebsd/virtualbox.sh",
+        "packer/scripts/freebsd/vagrant-ssh-key.sh"
+      ]
+    },
+    {
+      "type": "shell",
+      "execute_command": "chmod +x {{.Path}}; env {{.Vars}} {{.Path}}",
+      "only": [ "{{user `virtualbox_name`}}-ports" ],
+      "script": "packer/scripts/freebsd/ports.sh"
+    }
+  ],
+  "builders": [
+    {
+      "type":                 "virtualbox-iso",
+      "name":                 "{{user `virtualbox_name`}}",
+      "guest_os_type":        "{{user `virtualbox_os_type`}}",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "ssh_username":         "vagrant",
+      "ssh_password":         "vagrant",
+      "ssh_port":              22,
+      "ssh_wait_timeout":     "3600s",
+      "shutdown_command":     "sudo poweroff",
+      "iso_checksum_type":    "{{user `iso_checksum_type`}}",
+      "iso_checksum":         "{{user `iso_checksum`}}",
+      "iso_url":              "{{user `iso_url`}}",
+      "boot_wait":            "40s",
+      "boot_command": [
+        "<right><enter><wait>",
+        "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
+        "fetch -o /tmp/install.sh",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/installscripts/bsdinstall-ufs.sh &&",
+        " INSTALL_PORTS=\"NO\" bsdinstall script /tmp/install.sh<enter><wait5>"
+      ],
+      "http_directory": "packer/http",
+      "vboxmanage" : [
+        ["modifyvm", "{{.Name}}", "--macaddress1", "D8F7813EC212"],
+        ["modifyvm", "{{.Name}}", "--memory", "512"],
+        ["modifyvm", "{{.Name}}", "--cpus", "1"]
+      ]
+    },
+    {
+      "type":                 "virtualbox-iso",
+      "name":                 "{{user `virtualbox_name`}}-ports",
+      "guest_os_type":        "{{user `virtualbox_os_type`}}",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "ssh_username":         "vagrant",
+      "ssh_password":         "vagrant",
+      "ssh_port":              22,
+      "ssh_wait_timeout":     "3600s",
+      "shutdown_command":     "sudo poweroff",
+      "iso_checksum_type":    "{{user `iso_checksum_type`}}",
+      "iso_checksum":         "{{user `iso_checksum`}}",
+      "iso_url":              "{{user `iso_url`}}",
+      "boot_wait":            "40s",
+      "boot_command": [
+        "<right><enter><wait>",
+        "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
+        "fetch -o /tmp/install.sh",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/installscripts/bsdinstall-ufs.sh &&",
+        " INSTALL_PORTS=\"YES\" bsdinstall script /tmp/install.sh<enter><wait5>"
+      ],
+      "http_directory": "packer/http",
+      "vboxmanage" : [
+        ["modifyvm", "{{.Name}}", "--macaddress1", "D8F7813EC212"],
+        ["modifyvm", "{{.Name}}", "--memory", "512"],
+        ["modifyvm", "{{.Name}}", "--cpus", "1"]
+      ]
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "vagrant",
+        "vagrantfile_template": "packer/vagrant/freebsd.rb"
+      }
+    ]
+  ]
+}
