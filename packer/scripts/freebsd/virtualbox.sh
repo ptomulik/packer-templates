@@ -3,10 +3,12 @@
 set -e
 
 if [ `sysctl -n kern.osreldate` -ge '903000' ]; then
-  sudo -i pkg install -y virtualbox-ose-additions
+  PKG_INSTALL="pkg install -y"
 else
-  sudo -i pkg_add -r virtualbox-ose-additions
+  PKG_INSTALL="pkg_add -r"
 fi
+
+sudo -i $PKG_INSTALL virtualbox-ose-additions
 
 sudo sh -c 'echo "vboxguest_enable=YES" >> /etc/rc.conf'
 sudo sh -c 'echo "vboxservice_enable=YES" >> /etc/rc.conf'

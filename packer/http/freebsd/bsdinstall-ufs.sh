@@ -1,9 +1,18 @@
-PARTITIONS="ada0"
+PARTITIONS=
+for DEV in 'ada0' 'da0'; do
+  test -e "/dev/$DEV" && PARTITIONS=$DEV && break;
+done
+
+if [ -z "$PARTITIONS" ]; then
+  echo 'ERROR: could not determine the disk device to be partitioned' >&2
+  exit 1
+fi
+
 DISTRIBUTIONS="kernel.txz base.txz"
 
 if [ ! -z "$INSTALL_PORTS" ]; then
   case "$INSTALL_PORTS" in
-    1|TRUE|YES)
+    1|YES|yes|Yes)
       DISTRIBUTIONS="$DISTRIBUTIONS ports.txz"
       ;;
   esac
@@ -14,15 +23,15 @@ fi
 set -e
 
 # Prepare interface and enable ssh
-echo "ifconfig_em0=DHCP" >> /etc/rc.conf
+echo "ifconfig_em0=SYNCDHCP" >> /etc/rc.conf
 echo "sshd_enable=YES" >> /etc/rc.conf
 
 # Add "vagrant" user
 pw groupadd vagrant
 echo "vagrant" | pw useradd vagrant -c "Vagrant User" -m -g vagrant -G wheel -s csh -h 0
 
-# Start networking
-dhclient "em0"
+# Stop/start networking
+service netif restart
 
 OSRELDATE=`sysctl -n kern.osreldate`
 ARCH=`sysctl -n hw.machine_arch`

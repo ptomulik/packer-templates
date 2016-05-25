@@ -2,9 +2,8 @@
   "iso_checksum_type"  : "sha256",
   "iso_checksum"       : "0c3d64ce48c3ef761761d0fea07e1935e296f8c045c249118bc91a7faf053a6b",
   "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.1/FreeBSD-10.1-RELEASE-amd64-disc1.iso",
-  "os_name"            : "freebsd",
-  "os_vers"            : "10.1",
-  "os_arch"            : "amd64",
   "virtualbox_os_type" : "FreeBSD_64",
-  "virtualbox_name"    : "freebsd-10.1-amd64"
+  "vmware_os_type"     : "freebsd-64",
+  "image_version"      : "1.0.1",
+  "image_name"         : "freebsd-10.1-amd64"
 }

@@ -2,9 +2,8 @@
   "iso_checksum_type"  : "sha256",
   "iso_checksum"       : "270283b67d6e09a748220e5085825354e5d489beacb98a9f46d1c81d9476d257",
   "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/snapshots/i386/i386/ISO-IMAGES/11.0/FreeBSD-11.0-CURRENT-i386-20160518-r300097-disc1.iso",
-  "os_name"            : "freebsd",
-  "os_vers"            : "11.0",
-  "os_arch"            : "i386",
   "virtualbox_os_type" : "FreeBSD",
-  "virtualbox_name"    : "freebsd-11.0-i386"
+  "vmware_os_type"     : "freebsd",
+  "image_version"      : "1.0.1",
+  "image_name"         : "freebsd-11.0-i386"
 }

@@ -5,10 +5,11 @@ set -e
 OSRELDATE=`sysctl -n kern.osreldate`
 
 if [ "$OSRELDATE" -ge '903000' ]; then
-  sudo -i pkg install -y port-maintenance-tools
   if [ "$OSRELDATE" -le '903999' ]; then
     sudo -i 'echo "WITH_PKGNG=yes" >> /etc/make.conf'
   fi
+  PKG_INSTALL="pkg install -y"
 else
-  sudo -i pkg_add -r port-maintenance-tools
+  PKG_INSTALL="pkg_add -r"
 fi
+sudo -i $PKG_INSTALL port-maintenance-tools

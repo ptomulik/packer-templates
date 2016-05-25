@@ -5,7 +5,11 @@ require 'ptomulik/packer_templates'
 
 
 # This simply generates a rule for creating boxes from sources
-box_rule
+boxrule
 
 # Generate tasks which make particular boxes
-box_tasks
+boxtasks
+
+task :default do
+  sh %{rake -T}
+end

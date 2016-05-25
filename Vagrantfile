@@ -8,33 +8,34 @@ require 'rake'
 # How different systems are being configured
 #
 
-def freebsd(cfg, boxfile, boxname)
+def freebsd(cfg, boxfile, args={})
   cfg.ssh.shell   = 'sh'
   cfg.vm.guest    = :freebsd
-  cfg.vm.box      = "ptomulik/#{boxname}"
-  cfg.vm.box_url  =  "file:///#{File.dirname(__FILE__)}/#{boxfile}"
+  cfg.vm.box      = "#{boxname_in_boxfile(boxfile, args)}"
+  cfg.vm.box_url  = "file://#{File.dirname(__FILE__)}/#{boxfile}"
 end
 
 #
 # Driver...
 #
 Vagrant.configure(2) do |config|
-  builders = []
-  PTomulik::PackerTemplates.boxfiles.map do |boxfile|
-    system = PTomulik::PackerTemplates.boxfile_system(boxfile)
-    boxname = PTomulik::PackerTemplates.boxfile_builder(boxfile)
+  args = {}
+  boxes = []
+  boxfiles(args).map do |boxfile|
+    system = system_in_boxfile(boxfile, args)
+    boxname = boxname_in_boxfile(boxfile, args)
     config.vm.define boxname, autostart: false do |cfg|
-      send(system.intern, cfg, boxfile, boxname)
+      send(system.intern, cfg, boxfile, args)
     end
-    builders.push(boxname)
+    boxes.push(boxname)
   end
 
   # Present machines that may be used...
   if ARGV.include?('up') then
     i = ARGV.index('up')
-    unless ARGV.size > i+1 and builders.include?(ARGV[-1]) then
+    unless ARGV.size > i+1 and boxes.include?(ARGV[-1]) then
       puts("No default machine defined, use one of the following:")
-      builders.map do |name|
+      boxes.map do |name|
         puts("vagrant up #{name}\n")
       end
     end

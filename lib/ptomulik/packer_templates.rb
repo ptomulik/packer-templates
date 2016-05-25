@@ -2,6 +2,21 @@ require 'rake'
 require 'rake/clean'
 
 module PTomulik; end
+
+#
+# Boxfile syntax:
+#
+#   boxfile   := <dir><prefix><boxname><suffix>
+#   boxname   := <basename>_<provider>
+#   name      := <ostuple>(-<variant>)?
+#   ostuple   := <system>-<version>-<arch>
+#   provider  := "virtualbox" | "vmware_workstation" | ....
+#   system    := "freebsd" | ...
+#
+# Varfile syntax:
+#
+#   varfile   := <dir><prefix><ostuple><suffix>
+#
 module PTomulik::PackerTemplates
   extend Rake::DSL
   class << self
@@ -10,60 +25,93 @@ module PTomulik::PackerTemplates
       (dir.empty? or dir.end_with?('/')) ? dir : "#{dir}/"
     end
 
-    def self.define_defaults(args = {})
-      args.map do |name,value|
-        default = ('default_' + name.to_s).intern
-        define_method(default) { value }
-      end
+    # Defines a method which returns default value for a named parameter
+    #
+    # Example:
+    #
+    #   define_default :param1, value1,
+    #   define_default :param2, value2
+    #
+    # This shall define the following methods:
+    #
+    #   def default_param1; value1; end
+    #   def default_param2; value2; end
+    #
+    def self.define_default(name, value, args = {})
+      default = ('default_' + name.to_s).intern
+      define_method(default) { value }
     end
 
+    # Define a method which returns value of a named parameter
+    #
+    # Example:
+    #
+    #   define_param  :param1
+    #   define_param  :param2, :postproc => :munge_dir
+    #
+    # This shall generate following methods:
+    #
+    #   param1(args = {})
+    #   param2(args = {})
+    #
+    # - param1 returns default_param1
+    # - param2 returns munge_dir(default_param2),
+    # - param1(:param1 => 'foo') returns 'foo',
+    # - param2(:param2 => 'bar') return munge_dir('bar').
+    #
     def self.define_param(name, options={})
       default = ('default_' + name.to_s).intern
+      unless options[:default].nil?
+        define_default name, options[:default], options
+      end
       define_method(name) do |args={}|
         pp = options[:postproc] ? method(options[:postproc]) : lambda {|val| val}
         pp.call(args[name] || send(default))
       end
     end
 
-    define_defaults :systems    => ['freebsd']
-    define_defaults :providers  => ['virtualbox']
-    define_defaults :variants   => {
-      'freebsd' => [ '', 'ports' ]
-    }
-    define_defaults :exclusions => [
+    @default_providers = []
+
+    # Discover what providers are available....
+    begin
+      $VMWARE_VERSION ||= `vmware --version`
+    rescue
+      $VMWARE_VERSION = ""
+    end
+
+    begin
+      $VIRTUALBOX_VERSION ||= `vboxmanage --version`
+    rescue
+      $VMWARE_VERSION = ""
+    end
+
+    @default_providers.push('virtualbox') unless $VIRTUALBOX_VERSION.empty?
+    @default_providers.push('vmware_workstation') if $VMWARE_VERSION =~ /VMware Workstation/i
+
+    define_param :systems,            :default => ['freebsd']
+    define_param :providers,          :default => @default_providers
+    define_param :variants,           :default => { 'freebsd' => [ '', 'ports' ] }
+    define_param :exclusions,         :default => [
       'freebsd-11.0-i386-ports',  # ports.txz is missing on CD
       'freebsd-11.0-amd64-ports'  # ports.txz is missing on CD
     ]
-    define_defaults :boxfile_prefix     => 'packer_'
-    define_defaults :boxfile_suffix     => '.box'
-    define_defaults :varfile_prefix     => ''
-    define_defaults :varfile_suffix     => '.json'
-    define_defaults :sysfile_prefix     => ''
-    define_defaults :sysfile_suffix     => '.json'
-    define_defaults :vagrantfile_prefix => ''
-    define_defaults :vagrantfile_suffix => '.rb'
-    define_defaults :boxfile_dir        => ''
-    define_defaults :varfiles_dir       => 'packer/variations/'
-    define_defaults :sysfiles_dir       => 'packer/systems/'
-    define_defaults :vagrantfiles_dir   => 'packer/vagrant/'
+    define_param :boxfile_prefix,     :default => 'packer_'
+    define_param :boxfile_suffix,     :default => '.box'
+    define_param :varfile_prefix,     :default => ''
+    define_param :varfile_suffix,     :default => '.json'
+    define_param :sysfile_prefix,     :default => ''
+    define_param :sysfile_suffix,     :default => '.json'
+    define_param :vagrantfile_prefix, :default => ''
+    define_param :vagrantfile_suffix, :default => '.rb'
+    define_param :outdir_prefix,      :default => 'output-'
+    define_param :outdir_suffix,      :default => ''
+    define_param :boxfile_dir,        :default => '',                   :postproc => :munge_dir
+    define_param :varfiles_dir,       :default => 'packer/variants/',   :postproc => :munge_dir
+    define_param :sysfiles_dir,       :default => 'packer/systems/',    :postproc => :munge_dir
+    define_param :vagrantfiles_dir,   :default => 'packer/vagrant/',    :postproc => :munge_dir
+    define_param :outdir_dir,         :default => '',                   :postproc => :munge_dir
 
-    define_param(:systems)
-    define_param(:providers)
-    define_param(:variants)
-    define_param(:exclusions)
-    define_param(:boxfile_prefix)
-    define_param(:boxfile_suffix)
-    define_param(:varfile_prefix)
-    define_param(:varfile_suffix)
-    define_param(:sysfile_prefix)
-    define_param(:sysfile_suffix)
-    define_param(:vagrantfile_prefix)
-    define_param(:vagrantfile_suffix)
-    define_param(:boxfile_dir, :postproc => :munge_dir)
-    define_param(:varfiles_dir, :postproc => :munge_dir)
-    define_param(:sysfiles_dir, :postproc => :munge_dir)
-    define_param(:vagrantfiles_dir, :postproc => :munge_dir)
-
+    # Returns regular expression to match operating system names we support
     def systems_regexp(args = {})
       /#{systems(args).map{|s| Regexp.escape s}.join('|')}/
     end
@@ -73,41 +121,54 @@ module PTomulik::PackerTemplates
     end
 
     def ostuple_regexp(args={})
-      /(?<system>#{systems_regexp(args)})-(?<version>[^-]+)-(?<arch>[^-]+)/
+      /(?<system>#{systems_regexp(args)})-(?<version>[^-]+)-(?<arch>[^_-]+)/
     end
 
-    def builder_regexp(args={})
+    def name_regexp(args={})
       /(?<ostuple>#{ostuple_regexp(args)})(?:-(?<variant>[^_]+))?/
     end
 
+    def boxname_regexp(args={})
+      /(?<name>#{name_regexp(args)})_(?<provider>#{providers_regexp(args)})/
+    end
+
     def boxfile_regexp(args = {})
+      dir = Regexp.escape(boxfile_dir(args))
       suffix = Regexp.escape(boxfile_suffix(args))
       prefix = Regexp.escape(boxfile_prefix(args))
-      dir = Regexp.escape(boxfile_dir(args))
-      /(?<dir>#{dir})(?<prefix>#{prefix})(?<builder>#{builder_regexp(args)})_(?<provider>#{providers_regexp(args)})(?<suffix>#{suffix})/
+      /(?<dir>#{dir})(?<prefix>#{prefix})(?<boxname>#{boxname_regexp(args)})(?<suffix>#{suffix})/
     end
 
-    def varfiles_regexp(args = {})
+    def varfile_regexp(args = {})
       dir = Regexp.escape(varfiles_dir(args))
-      prefix = Regexp.escape(varfile_prefix(args)) 
-      suffix = Regexp.escape(varfile_suffix(args)) 
-      ostuple = /(?<system>#{systems_regexp(args)})-(?<version>[^-]+)-(?<arch>[^-]+)/
-      /(?<dir>#{dir})(?<prefix>#{prefix})(?<builder>#{builder_regexp(args)})(?<suffix>#{suffix})/
+      prefix = Regexp.escape(varfile_prefix(args))
+      suffix = Regexp.escape(varfile_suffix(args))
+      /(?<dir>#{dir})(?<prefix>#{prefix})(?<ostuple>#{ostuple_regexp(args)})(?<suffix>#{suffix})/
     end
 
-    def box_rule_target(args = {})
+    def boxrule_target(args = {})
       /^#{boxfile_regexp(args)}$/
     end
 
-    def boxfile_system(boxfile, args = {})
-      re = /^#{boxfile_regexp(args)}$/
-      boxfile.sub(re, '\k<system>')
+    def self.define_substring(of,name)
+      m1 = (name.to_s + '_in_' + of.to_s).intern
+      m2 = (of.to_s + '_regexp').intern
+      define_method(m1) do |str,args={}|
+        str.sub(/^#{send(m2,args)}$/, "\\k<#{name}>")
+      end
     end
 
-    def boxfile_builder(boxfile, args = {})
-      re = /^#{boxfile_regexp(args)}$/
-      boxfile.sub(re, '\k<builder>')
-    end
+    define_substring :boxfile, :dir
+    define_substring :boxfile, :prefix
+    define_substring :boxfile, :suffix
+    define_substring :boxfile, :boxname
+    define_substring :boxfile, :name
+    define_substring :boxfile, :provider
+    define_substring :boxfile, :ostuple
+    define_substring :boxfile, :variant
+    define_substring :boxfile, :system
+    define_substring :boxfile, :version
+    define_substring :boxfile, :arch
 
     def boxfile_sysfile(boxfile, args = {})
       re = /^#{boxfile_regexp(args)}$/
@@ -133,7 +194,7 @@ module PTomulik::PackerTemplates
       boxfile.sub(re, "#{dir}#{prefix}\\k<system>#{suffix}")
     end
 
-    def box_rule_sources(args = {})
+    def boxrule_sources(args = {})
       [
         proc { |boxfile| boxfile_sysfile(boxfile, args) },
         proc { |boxfile| boxfile_varfile(boxfile, args) },
@@ -141,96 +202,157 @@ module PTomulik::PackerTemplates
       ]
     end
 
-    def box_rule(args = {})
-      rule( box_rule_target(args) => box_rule_sources(args) ) do |t|
-        name = t.name.sub(/^#{boxfile_regexp(args)}$/, '\k<builder>')
-        sh "packer build -only '#{name}' -var-file='#{t.sources[1]}' '#{t.source}'"
+    def boxrule(args = {})
+      rule( boxrule_target(args) => boxrule_sources(args) ) do |t|
+        name = t.name.sub(/^#{boxfile_regexp(args)}$/, '\k<boxname>')
+        filter = ''
+        unless ENV['ATLAS_TOKEN'] and ENV['ATLAS_USER'] and (not ENV['ATLAS_DISABLE'] =~ /(yes|true|1)/i)
+          # filter-out atlas post-processors from template
+          filter += ' .["post-processors"][0] |= map(select(.type!="atlas"))'
+        end
+        sh "(jq '#{filter}' '#{t.source}' | packer build -only '#{name}' -var-file='#{t.sources[1]}' -)"
+        #sh "packer build -only '#{name}' -var-file='#{t.sources[1]}' '#{t.source}'"
       end
+      CLEAN.include( outdirs )
       CLOBBER.include( boxfiles )
     end
 
     def find_varfiles(args)
-      Dir["#{varfiles_dir(args)}*.json"].select{ |x| x =~ /^#{varfiles_regexp}$/ }
+      Dir["#{varfiles_dir(args)}*.json"].select{ |x| x =~ /^#{varfile_regexp}$/ }
     end
 
-    def varfile_system(varfile, args={})
-      varfile.sub(/^#{varfiles_regexp(args)}$/, '\k<system>')
+    define_substring :varfile, :system
+    define_substring :varfile, :version
+    define_substring :varfile, :arch
+    define_substring :varfile, :ostuple
+
+    def varfile_name(varfile, variant, args={})
+      ostuple_name(ostuple_in_varfile(varfile, args), variant)
     end
 
-    def varfile_ostuple(varfile, args={})
-      varfile.sub(/^#{varfiles_regexp(args)}$/, '\k<ostuple>')
-    end
-
-    def ostuple_builder(ostuple, variant, args={})
+    def ostuple_name(ostuple, variant, args={})
       variant.empty? ? ostuple : "#{ostuple}-#{variant}"
     end
 
-    def varfile_builder(varfile, variant, args={})
-      ostuple_builder(varfile_ostuple(varfile, args), variant, args)
+    def ostuple_boxname(ostuple, variant, provider, args={})
+      "#{ostuple_name(ostuple, variant, args)}_#{provider}"
     end
 
-    def builder_boxfile(builder, provider, args={})
+    def varfile_boxname(varfile, variant, provider, args={})
+      ostuple_boxname(ostuple_in_varfile(varfile, args), variant, provider, args)
+    end
+
+    def boxname_boxfile(boxname, args={})
       dir     = boxfile_dir(args)
       prefix  = boxfile_prefix(args)
       suffix  = boxfile_suffix(args)
-      "#{dir}#{prefix}#{builder}_#{provider}#{suffix}"
+      "#{dir}#{prefix}#{boxname}#{suffix}"
+    end
+
+    def boxname_outdir(boxname, args={})
+      dir     = outdir_dir(args)
+      prefix  = outdir_prefix(args)
+      suffix  = outdir_suffix(args)
+      "#{dir}#{prefix}#{boxname}#{suffix}"
+    end
+
+    def name_boxname(name, provider, args={})
+      "#{name}_#{provider}"
     end
 
     def varfile_boxfile(varfile, variant, provider, args={})
-      builder_boxfile(varfile_builder(varfile, variant), provider, args)
+      boxname_boxfile(varfile_boxname(varfile, variant), provider, args)
     end
 
-    def boxfiles(args = {})
-      variants  = variants(args)
+    def boxnames(args = {})
+      boxnames = []
+      variants = variants(args)
       providers = providers(args)
-      boxfiles = []
       find_varfiles(args).map do |varfile|
-        system = varfile_system(varfile, args)
+        system = system_in_varfile(varfile, args)
         (variants[system] || []).uniq.map do |variant|
-          builder = varfile_builder(varfile, variant, args)
-          unless exclusions(args).include?(builder) then
+          name = varfile_name(varfile, variant, args)
+          unless exclusions(args).include?(name) then
             providers.map do |provider|
-              unless exclusions(args).include?(builder + '_' + provider)
-                boxfiles.push(builder_boxfile(builder, provider, args))
+              boxname = name_boxname(name, provider, args)
+              unless exclusions(args).include?(boxname)
+                boxnames.push(boxname)
               end
             end
           end
         end
       end
-      boxfiles
+      boxnames
     end
 
-    def box_tasks(args = {})
+    def outdirs(args = {})
+      boxnames(args).map{ |boxname| boxname_outdir(boxname, args) }
+    end
+
+    def boxfiles(args = {})
+      boxnames(args).map{ |boxname| boxname_boxfile(boxname, args) }
+    end
+
+    def boxtasks(args = {})
       variants  = variants(args)
       providers = providers(args)
-      multitask :default
       find_varfiles(args).map do |varfile|
-        system = varfile_system(varfile, args)
-        desc "Generate boxes for #{system}"
+        system = system_in_varfile(varfile, args)
+        version = version_in_varfile(varfile, args)
+        arch = arch_in_varfile(varfile, args)
+        desc "Generate all #{system} boxes"
         multitask system
+        desc "Generate all #{system}-#{version}-* boxes"
+        multitask "#{system}-#{version}"
+        desc "Generate all #{system}-*-#{arch}* boxes"
+        multitask "#{system}-#{arch}"
+        desc "Generate all #{system}-#{version}-#{arch}* boxes"
+        multitask "#{system}-#{version}-#{arch}*"
         (variants[system] || []).uniq.map do |variant|
-          builder = varfile_builder(varfile, variant, args)
-          unless exclusions(args).include?(builder) then
-            desc "Generate box for #{builder}"
+          name = varfile_name(varfile, variant, args)
+          boxnames = []
+          unless exclusions(args).include?(name) then
+            multitask system => name
+            multitask "#{system}-#{version}" => name
+            multitask "#{system}-#{arch}" => name
+            multitask "#{system}-#{version}-#{arch}*" => name
             providers.map do |provider|
-              unless exclusions(args).include?(builder + '_' + provider)
-                task builder => builder_boxfile(builder, provider, args)
-                multitask system => builder
+              boxname = name_boxname(name, provider, args)
+              unless exclusions(args).include?(boxname)
+                desc "Generate box for #{boxname}"
+                task boxname => boxname_boxfile(boxname, args)
+                boxnames.push(boxname)
               end
             end
           end
+          unless boxnames.empty?
+            es = (boxnames.size > 1) ? 'es' : ''
+            desc "Generate box#{es} for #{boxnames.join(', ')}"
+            multitask name => boxnames
+          end
         end
-        multitask :default => system
       end
     end
   end
 end
 
+module PTomulik::PackerTemplates::DSL
+  def self.publish_methods(*names)
+    names.map do |name|
+      define_method name do |*args|
+        PTomulik::PackerTemplates.send(name, *args)
+      end
+    end
+  end
 
-def box_rule(*args)
-  PTomulik::PackerTemplates.box_rule(*args)
+  publish_methods :boxrule, :boxtasks, :boxnames, :outdirs, :boxfiles
+  publish_methods :dir_in_boxfile, :prefix_in_boxfile, :suffix_in_boxfile,
+                  :boxname_in_boxfile, :name_in_boxfile,
+                  :provider_in_boxfile, :ostuple_in_boxfile,
+                  :variant_in_boxfile, :system_in_boxfile,
+                  :version_in_boxfile, :arch_in_boxfile
+  publish_methods :system_in_varfile, :version_in_varfile, :arch_in_varfile,
+                  :ostuple_in_varfile
 end
 
-def box_tasks(*args)
-  PTomulik::PackerTemplates.box_tasks(*args)
-end
+include PTomulik::PackerTemplates::DSL

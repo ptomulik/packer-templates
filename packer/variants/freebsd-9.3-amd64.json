@@ -2,9 +2,8 @@
   "iso_checksum_type"  : "sha256",
   "iso_checksum"       : "5a3c82653d77bba7d7ded8bd7efbedc09d52cf4045d98ce52a82c9e0f8fa9b0e",
   "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/9.3/FreeBSD-9.3-RELEASE-amd64-disc1.iso",
-  "os_name"            : "freebsd",
-  "os_vers"            : "9.3",
-  "os_arch"            : "amd64",
   "virtualbox_os_type" : "FreeBSD_64",
-  "virtualbox_name"    : "freebsd-9.3-amd64"
+  "vmware_os_type"     : "freebsd-64",
+  "image_version"      : "1.0.1",
+  "image_name"         : "freebsd-9.3-amd64"
 }

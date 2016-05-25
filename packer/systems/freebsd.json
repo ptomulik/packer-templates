@@ -1,53 +1,69 @@
 {
   "variables": {
-    "iso_checksum_type":  "",
-    "iso_checksum":       "",
-    "iso_url":            "",
-    "os_name":            "",
-    "os_vers":            "",
-    "os_arch":            "",
-    "virtualbox_os_type": "",
-    "virtualbox_name":    "",
-    "csh_execute_command":"chmod +x {{.Path}}; env {{.Vars}} {{.Path}}"
+    "iso_checksum_type"   : "sha256",
+    "iso_checksum"        : "fef068cf6dea26923ab84b62ba9f21461ca0bdec90a0741c8ffb0e1ca29e410d",
+    "iso_url"             : "http://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.3/FreeBSD-10.3-RELEASE-amd64-disc1.iso",
+    "virtualbox_os_type"  : "FreeBSD_64",
+    "vmware_os_type"      : "freebsd-64",
+    "image_version"       : "1.0.1",
+    "image_name"          : "freebsd-10.3-amd64",
+    "atlas_username"      : "{{env `ATLAS_USER`}}",
+    "boot_wait"           : "40s",
+    "ssh_wait_timeout"    : "3600s",
+    "ssh_port"            : "22"
   },
   "provisioners": [
     {
       "type": "shell",
-      "execute_command": "{{user `chs_execute_command`}}" ,
+      "execute_command": "chmod +x {{.Path}}; env {{.Vars}} {{.Path}}",
+      "only": [
+        "{{user `image_name`}}_virtualbox",
+        "{{user `image_name`}}-ports_virtualbox"
+      ],
+      "script" : "packer/scripts/freebsd/virtualbox.sh"
+    },
+    {
+      "type": "shell",
       "execute_command": "chmod +x {{.Path}}; env {{.Vars}} {{.Path}}",
       "scripts" : [
-        "packer/scripts/freebsd/virtualbox.sh",
-        "packer/scripts/freebsd/vagrant-ssh-key.sh"
+        "packer/scripts/freebsd/vagrant-ssh-key.sh",
+        "packer/scripts/freebsd/common-packages.sh"
       ]
     },
     {
       "type": "shell",
       "execute_command": "chmod +x {{.Path}}; env {{.Vars}} {{.Path}}",
-      "only": [ "{{user `virtualbox_name`}}-ports" ],
+      "only": [
+        "{{user `image_name`}}-ports_virtualbox",
+        "{{user `image_name`}}-ports_vmware_workstation"
+      ],
       "script": "packer/scripts/freebsd/ports.sh"
     }
   ],
   "builders": [
     {
       "type":                 "virtualbox-iso",
-      "name":                 "{{user `virtualbox_name`}}",
+      "name":                 "{{user `image_name`}}_virtualbox",
+      "vm_name":              "packer-{{user `image_name`}}",
       "guest_os_type":        "{{user `virtualbox_os_type`}}",
-      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "guest_additions_mode": "disable",
       "ssh_username":         "vagrant",
       "ssh_password":         "vagrant",
-      "ssh_port":              22,
-      "ssh_wait_timeout":     "3600s",
+      "ssh_port":             "{{user `ssh_port`}}",
+      "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
       "shutdown_command":     "sudo poweroff",
       "iso_checksum_type":    "{{user `iso_checksum_type`}}",
       "iso_checksum":         "{{user `iso_checksum`}}",
       "iso_url":              "{{user `iso_url`}}",
-      "boot_wait":            "40s",
+      "boot_wait":            "{{user `boot_wait`}}",
       "boot_command": [
         "<right><enter><wait>",
         "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
         "fetch -o /tmp/install.sh",
-        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/installscripts/bsdinstall-ufs.sh &&",
-        " INSTALL_PORTS=\"NO\" bsdinstall script /tmp/install.sh<enter><wait5>"
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/bsdinstall-ufs.sh &&",
+        " ifconfig em0 down &&",
+        " INSTALL_PORTS=\"NO\" bsdinstall script /tmp/install.sh<enter><wait5>",
+        ""
       ],
       "http_directory": "packer/http",
       "vboxmanage" : [
@@ -58,23 +74,25 @@
     },
     {
       "type":                 "virtualbox-iso",
-      "name":                 "{{user `virtualbox_name`}}-ports",
+      "name":                 "{{user `image_name`}}-ports_virtualbox",
+      "vm_name":              "packer-{{user `image_name`}}-ports",
       "guest_os_type":        "{{user `virtualbox_os_type`}}",
-      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "guest_additions_mode": "disable",
       "ssh_username":         "vagrant",
       "ssh_password":         "vagrant",
-      "ssh_port":              22,
-      "ssh_wait_timeout":     "3600s",
+      "ssh_port":             "{{user `ssh_port`}}",
+      "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
       "shutdown_command":     "sudo poweroff",
       "iso_checksum_type":    "{{user `iso_checksum_type`}}",
       "iso_checksum":         "{{user `iso_checksum`}}",
       "iso_url":              "{{user `iso_url`}}",
-      "boot_wait":            "40s",
+      "boot_wait":            "{{user `boot_wait`}}",
       "boot_command": [
         "<right><enter><wait>",
         "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
         "fetch -o /tmp/install.sh",
-        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/installscripts/bsdinstall-ufs.sh &&",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/bsdinstall-ufs.sh &&",
+        " ifconfig em0 down &&",
         " INSTALL_PORTS=\"YES\" bsdinstall script /tmp/install.sh<enter><wait5>"
       ],
       "http_directory": "packer/http",
@@ -83,13 +101,114 @@
         ["modifyvm", "{{.Name}}", "--memory", "512"],
         ["modifyvm", "{{.Name}}", "--cpus", "1"]
       ]
+    },
+    {
+      "type":                 "vmware-iso",
+      "name":                 "{{user `image_name`}}_vmware_workstation",
+      "vm_name":              "packer-{{user `image_name`}}",
+      "guest_os_type":        "{{user `vmware_os_type`}}",
+      "ssh_username":         "vagrant",
+      "ssh_password":         "vagrant",
+      "ssh_port":             "{{user `ssh_port`}}",
+      "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
+      "shutdown_command":     "sudo poweroff",
+      "iso_checksum_type":    "{{user `iso_checksum_type`}}",
+      "iso_checksum":         "{{user `iso_checksum`}}",
+      "iso_url":              "{{user `iso_url`}}",
+      "boot_wait":            "{{user `boot_wait`}}",
+      "boot_command": [
+        "<right><enter><wait>",
+        "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
+        "fetch -o /tmp/install.sh",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/bsdinstall-ufs.sh &&",
+        " ifconfig em0 down &&",
+        " INSTALL_PORTS=\"NO\" bsdinstall script /tmp/install.sh<enter><wait5>"
+      ],
+      "http_directory": "packer/http"
+    },
+    {
+      "type":                 "vmware-iso",
+      "name":                 "{{user `image_name`}}-ports_vmware_workstation",
+      "vm_name":              "packer-{{user `image_name`}}-ports",
+      "guest_os_type":        "{{user `vmware_os_type`}}",
+      "ssh_username":         "vagrant",
+      "ssh_password":         "vagrant",
+      "ssh_port":             "{{user `ssh_port`}}",
+      "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
+      "shutdown_command":     "sudo poweroff",
+      "iso_checksum_type":    "{{user `iso_checksum_type`}}",
+      "iso_checksum":         "{{user `iso_checksum`}}",
+      "iso_url":              "{{user `iso_url`}}",
+      "boot_wait":            "{{user `boot_wait`}}",
+      "boot_command": [
+        "<right><enter><wait>",
+        "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
+        "fetch -o /tmp/install.sh",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/bsdinstall-ufs.sh &&",
+        " ifconfig em0 down &&",
+        " INSTALL_PORTS=\"YES\" bsdinstall script /tmp/install.sh<enter><wait5>"
+      ],
+      "http_directory": "packer/http"
     }
   ],
   "post-processors": [
     [
       {
         "type": "vagrant",
-        "vagrantfile_template": "packer/vagrant/freebsd.rb"
+        "vagrantfile_template": "packer/vagrant/freebsd.rb",
+        "output": "packer_{{.BuildName}}.box"
+      },
+      {
+        "type": "atlas",
+        "only": [
+          "{{user `image_name`}}_virtualbox"
+        ],
+        "artifact": "{{user `atlas_username`}}/{{user `image_name`}}",
+        "artifact_type": "vagrant.box",
+        "metadata": {
+          "provider": "virtualbox",
+          "version": "{{user `image_version`}}",
+          "description": "A FreeBSD box (virtualbox)"
+        }
+      },
+      {
+        "type": "atlas",
+        "only": [
+          "{{user `image_name`}}-ports_virtualbox"
+        ],
+        "artifact": "{{user `atlas_username`}}/{{user `image_name`}}-ports",
+        "artifact_type": "vagrant.box",
+        "metadata": {
+          "provider": "virtualbox",
+          "version": "{{user `image_version`}}",
+          "description": "A FreeBSD box (virtualbox) with ports preinstalled"
+        }
+      },
+      {
+        "type": "atlas",
+        "only": [
+          "{{user `image_name`}}_vmware_workstation"
+        ],
+        "artifact": "{{user `atlas_username`}}/{{user `image_name`}}",
+        "artifact_type": "vagrant.box",
+        "metadata": {
+          "provider": "vmware_workstation",
+          "version": "{{user `image_version`}}",
+          "description": "A FreeBSD box (vmware_workstation)"
+        }
+      },
+      {
+        "type": "atlas",
+        "only": [
+          "{{user `image_name`}}-ports_vmware_workstation"
+        ],
+        "artifact": "{{user `atlas_username`}}/{{user `image_name`}}-ports",
+        "artifact_type": "vagrant.box",
+        "metadata": {
+          "provider": "vmware_workstation",
+          "version": "{{user `image_version`}}",
+          "description": "A FreeBSD box (vmware_workstation) with ports preinstalled"
+        }
       }
     ]
   ]
