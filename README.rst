@@ -80,7 +80,7 @@ The boxes are names as follows:
 - ``<version>`` is the version of the ``<system>`` used, for example ``9.3``,
 - ``<arch>`` is system architecture, e.g. ``amd64``,
 - ``<variant>`` is optional variant name (e.g. ``ports`` for ``freebsd`` with ports preinstalled),
-- ``<provider>`` is a provider name, e.g. ``virtualbox`` or ``vmare``.
+- ``<provider>`` is a provider name, e.g. ``virtualbox`` or ``vmware_workstation``.
 
 Some parts of the box name may be omitted (leading to multitasks), for example:
 

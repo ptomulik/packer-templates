@@ -6,7 +6,7 @@ OSRELDATE=`sysctl -n kern.osreldate`
 
 if [ "$OSRELDATE" -ge '903000' ]; then
   if [ "$OSRELDATE" -le '903999' ]; then
-    sudo -i 'echo "WITH_PKGNG=yes" >> /etc/make.conf'
+    echo 'WITH_PKGNG=yes' | sudo tee -a '/etc/make.conf'
   fi
   PKG_INSTALL="pkg install -y"
 else

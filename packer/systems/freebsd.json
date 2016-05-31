@@ -5,7 +5,7 @@
     "iso_url"             : "http://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.3/FreeBSD-10.3-RELEASE-amd64-disc1.iso",
     "virtualbox_os_type"  : "FreeBSD_64",
     "vmware_os_type"      : "freebsd-64",
-    "image_version"       : "1.0.1",
+    "image_version"       : "1.0.2",
     "image_name"          : "freebsd-10.3-amd64",
     "atlas_username"      : "{{env `ATLAS_USER`}}",
     "boot_wait"           : "40s",
@@ -168,7 +168,7 @@
         "metadata": {
           "provider": "virtualbox",
           "version": "{{user `image_version`}}",
-          "description": "A FreeBSD box (virtualbox)"
+          "description": "A FreeBSD box"
         }
       },
       {
@@ -181,7 +181,7 @@
         "metadata": {
           "provider": "virtualbox",
           "version": "{{user `image_version`}}",
-          "description": "A FreeBSD box (virtualbox) with ports preinstalled"
+          "description": "A FreeBSD box with ports preinstalled"
         }
       },
       {
@@ -194,7 +194,7 @@
         "metadata": {
           "provider": "vmware_workstation",
           "version": "{{user `image_version`}}",
-          "description": "A FreeBSD box (vmware_workstation)"
+          "description": "A FreeBSD box"
         }
       },
       {
@@ -207,7 +207,7 @@
         "metadata": {
           "provider": "vmware_workstation",
           "version": "{{user `image_version`}}",
-          "description": "A FreeBSD box (vmware_workstation) with ports preinstalled"
+          "description": "A FreeBSD box with ports preinstalled"
         }
       }
     ]

@@ -4,6 +4,5 @@
   "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/snapshots/amd64/amd64/ISO-IMAGES/11.0/FreeBSD-11.0-CURRENT-amd64-20160518-r300097-disc1.iso",
   "virtualbox_os_type" : "FreeBSD_64",
   "vmware_os_type"     : "freebsd-64",
-  "image_version"      : "1.0.1",
   "image_name"         : "freebsd-11.0-amd64"
 }

@@ -4,6 +4,5 @@
   "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/releases/i386/i386/ISO-IMAGES/10.3/FreeBSD-10.3-RELEASE-i386-disc1.iso",
   "virtualbox_os_type" : "FreeBSD",
   "vmware_os_type"     : "freebsd",
-  "image_version"      : "1.0.1",
   "image_name"         : "freebsd-10.3-i386"
 }
