@@ -10,14 +10,6 @@ fi
 
 DISTRIBUTIONS="kernel.txz base.txz"
 
-if [ ! -z "$INSTALL_PORTS" ]; then
-  case "$INSTALL_PORTS" in
-    1|YES|yes|Yes)
-      DISTRIBUTIONS="$DISTRIBUTIONS ports.txz"
-      ;;
-  esac
-fi
-
 #!/bin/sh
 
 set -e

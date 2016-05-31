@@ -13,3 +13,5 @@ else
   PKG_INSTALL="pkg_add -r"
 fi
 sudo -i $PKG_INSTALL port-maintenance-tools
+sudo -i script -q /dev/null portsnap fetch
+sudo -i portsnap extract > /dev/null

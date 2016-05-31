@@ -91,10 +91,7 @@ module PTomulik::PackerTemplates
     define_param :systems,            :default => ['freebsd']
     define_param :providers,          :default => @default_providers
     define_param :variants,           :default => { 'freebsd' => [ '', 'ports' ] }
-    define_param :exclusions,         :default => [
-      'freebsd-11.0-i386-ports',  # ports.txz is missing on CD
-      'freebsd-11.0-amd64-ports'  # ports.txz is missing on CD
-    ]
+    define_param :exclusions,         :default => [ ]
     define_param :boxfile_prefix,     :default => 'packer_'
     define_param :boxfile_suffix,     :default => '.box'
     define_param :varfile_prefix,     :default => ''
