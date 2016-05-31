@@ -26,7 +26,7 @@
       "type": "shell",
       "execute_command": "chmod +x {{.Path}}; env {{.Vars}} {{.Path}}",
       "scripts" : [
-        "packer/scripts/freebsd/vagrant-ssh-key.sh",
+        "packer/scripts/freebsd/vagrant.sh",
         "packer/scripts/freebsd/common-packages.sh"
       ]
     },
