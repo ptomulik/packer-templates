@@ -49,6 +49,7 @@ else
   if [ ! -z "$PACKAGESITE" ]; then
     echo "PACKAGESITE=$PACKAGESITE" | tee -a /etc/profile
     echo "setenv PACKAGESITE $PACKAGESITE" >> /etc/csh.cshrc
+    mkdir -p /usr/local/etc/sudoers.d && echo "Defaults env_keep += \"PACKAGESITE\"" >> /usr/local/etc/sudoers.d/packagesite
   fi
   pkg_add -r sudo
 fi
