@@ -5,7 +5,7 @@
     "iso_url"             : "http://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.3/FreeBSD-10.3-RELEASE-amd64-disc1.iso",
     "virtualbox_os_type"  : "FreeBSD_64",
     "vmware_os_type"      : "freebsd-64",
-    "image_version"       : "1.0.4",
+    "image_version"       : "1.0.5",
     "image_name"          : "freebsd-10.3-amd64",
     "atlas_username"      : "{{env `ATLAS_USER`}}",
     "boot_wait"           : "40s",

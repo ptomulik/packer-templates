@@ -52,6 +52,7 @@ else
     mkdir -p /usr/local/etc/sudoers.d && echo "Defaults env_keep += \"PACKAGESITE\"" >> /usr/local/etc/sudoers.d/packagesite
   fi
   pkg_add -r sudo
+  test -e /etc/ssl/cert.pem || ln -s /usr/local/share/certs/ca-root-nss.crt /etc/ssl/cert.pem
 fi
 
 # Add vagrant to sudoers (passwordless)
