@@ -1,0 +1,8 @@
+{
+  "iso_checksum_type"  : "sha256",
+  "iso_checksum"       : "776ba34df5ffb8b5f04b823aacea32210104204b5d3d1547334a22c86cf7090e",
+  "iso_url"            : "http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/amd64/ISO-IMAGES/9.1/FreeBSD-9.1-RELEASE-amd64-disc1.iso",
+  "virtualbox_os_type" : "FreeBSD_64",
+  "vmware_os_type"     : "freebsd-64",
+  "image_name"         : "freebsd-9.1-amd64"
+}

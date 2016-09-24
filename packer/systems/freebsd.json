@@ -5,7 +5,7 @@
     "iso_url"             : "http://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.3/FreeBSD-10.3-RELEASE-amd64-disc1.iso",
     "virtualbox_os_type"  : "FreeBSD_64",
     "vmware_os_type"      : "freebsd-64",
-    "image_version"       : "1.0.5",
+    "image_version"       : "1.2.3",
     "image_name"          : "freebsd-10.3-amd64",
     "atlas_username"      : "{{env `ATLAS_USER`}}",
     "boot_wait"           : "40s",
@@ -59,10 +59,10 @@
       "boot_command": [
         "<right><enter><wait>",
         "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
-        "fetch -o /tmp/install.sh",
-        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/bsdinstall-ufs.sh &&",
-        " ifconfig em0 down &&",
-        " bsdinstall script /tmp/install.sh<enter><wait5>",
+        " fetch -o /tmp/installer.sh",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/installer.sh &&",
+        " chmod +x /tmp/installer.sh &&",
+        " HTTPIP='{{ .HTTPIP }}' HTTPPORT='{{ .HTTPPort }}' /tmp/installer.sh<enter><wait5>",
         ""
       ],
       "http_directory": "packer/http",
@@ -90,10 +90,12 @@
       "boot_command": [
         "<right><enter><wait>",
         "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
-        "fetch -o /tmp/install.sh",
-        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/bsdinstall-ufs.sh &&",
-        " ifconfig em0 down &&",
-        " bsdinstall script /tmp/install.sh<enter><wait5>"
+        " fetch -o /tmp/installer.sh",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/installer.sh &&",
+        " chmod +x /tmp/installer.sh &&",
+        " HTTPIP='{{ .HTTPIP }}' HTTPPORT='{{ .HTTPPort }}' INSTALL_PORTS=yes",
+        " /tmp/installer.sh<enter><wait5>",
+        ""
       ],
       "http_directory": "packer/http",
       "vboxmanage" : [
@@ -119,10 +121,11 @@
       "boot_command": [
         "<right><enter><wait>",
         "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
-        "fetch -o /tmp/install.sh",
-        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/bsdinstall-ufs.sh &&",
-        " ifconfig em0 down &&",
-        " bsdinstall script /tmp/install.sh<enter><wait5>"
+        " fetch -o /tmp/installer.sh",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/installer.sh &&",
+        " chmod +x /tmp/installer.sh &&",
+        " HTTPIP='{{ .HTTPIP }}' HTTPPORT='{{ .HTTPPort }}' /tmp/installer.sh<enter><wait5>",
+        ""
       ],
       "http_directory": "packer/http"
     },
@@ -143,10 +146,12 @@
       "boot_command": [
         "<right><enter><wait>",
         "dhclient -l /tmp/dhclient.lease.em0 em0<enter><wait><wait>",
-        "fetch -o /tmp/install.sh",
-        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/bsdinstall-ufs.sh &&",
-        " ifconfig em0 down &&",
-        " bsdinstall script /tmp/install.sh<enter><wait5>"
+        " fetch -o /tmp/installer.sh",
+        " http://{{ .HTTPIP }}:{{ .HTTPPort }}/freebsd/installer.sh &&",
+        " chmod +x /tmp/installer.sh &&",
+        " HTTPIP='{{ .HTTPIP }}' HTTPPORT='{{ .HTTPPort }}' INSTALL_PORTS=yes",
+        " /tmp/installer.sh<enter><wait5>",
+        ""
       ],
       "http_directory": "packer/http"
     }

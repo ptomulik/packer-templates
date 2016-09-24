@@ -1,0 +1,21 @@
+hostname=@hostname@
+installMode=fresh
+installInteractive=no
+
+disk0=ada0
+partition=all
+bootManager=bsd
+commitDiskPart
+
+disk0-part=UFS 35840 /
+disk0-port=SWAP 2048 none
+commitDiskLabel
+
+installType=FreeBSD
+installMedium=local
+packageType=dist
+localPath=/usr/freebsd-dist
+distFiles=@distFiles@
+
+runScript=/tmp/installer-postconfig.sh
+runExtCommand=echo $FSMNT > /tmp/fsmnt
