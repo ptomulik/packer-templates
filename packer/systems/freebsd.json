@@ -3,12 +3,17 @@
     "iso_checksum_type"   : "sha256",
     "iso_checksum"        : "fef068cf6dea26923ab84b62ba9f21461ca0bdec90a0741c8ffb0e1ca29e410d",
     "iso_url"             : "http://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.3/FreeBSD-10.3-RELEASE-amd64-disc1.iso",
+    "arch"                : "amd64",
+    "osrelease"           : "10.3-RELEASE",
     "virtualbox_os_type"  : "FreeBSD_64",
     "vmware_os_type"      : "freebsd-64",
+    "docker_os_type"      : "freebsd-64",
     "image_version"       : "1.2.3",
     "image_name"          : "freebsd-10.3-amd64",
     "vagrantcloud_user"   : "{{env `VAGRANTCLOUD_USER`}}",
     "vagrantcloud_token"  : "{{env `VAGRANTCLOUD_TOKEN`}}",
+    "docker_user"         : "{{env `DOCKER_USER`}}",
+    "docker_password"     : "{{env `DOCKER_PASSWORD`}}",
     "boot_wait"           : "40s",
     "ssh_wait_timeout"    : "3600s",
     "ssh_port"            : "22"
@@ -155,6 +160,26 @@
         ""
       ],
       "http_directory": "packer/http"
+    },
+    {
+      "type":                 "docker",
+      "image":                "ptomulik/freebsd:{{user `arch`}}--{{user `osrelease`}}",
+      "export_path":          "packer-{{user `image_name`}}_docker.tar",
+      "name":                 "{{user `image_name`}}_docker",
+      "ssh_username":         "vagrant",
+      "ssh_password":         "vagrant",
+      "ssh_port":             "{{user `ssh_port`}}",
+      "run_command":          [ "-d", "-i", "-t", "{{.Image}}", "/bin/sh" ]
+    },
+    {
+      "type":                 "docker",
+      "image":                "ptomulik/freebsd:{{user `arch`}}--{{user `osrelease`}}",
+      "export_path":          "packer-{{user `image_name`}}-ports_docker.tar",
+      "name":                 "{{user `image_name`}}-ports_docker",
+      "ssh_username":         "vagrant",
+      "ssh_password":         "vagrant",
+      "ssh_port":             "{{user `ssh_port`}}",
+      "run_command":          [ "-d", "-i", "-t", "{{.Image}}", "/bin/sh" ]
     }
   ],
   "post-processors": [
@@ -199,6 +224,28 @@
         "access_token": "{{user `vagrantcloud_token`}}",
         "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}-ports",
         "version": "{{user `image_version`}}"
+      },
+      {
+        "type": "docker-import",
+        "only": [
+          "{{user `image_name`}}_docker"
+        ],
+        "repository": "{{user `docker_user`}}/freebsd",
+        "tag": "{{user `arch`}}--{{user `osrelease`}}"
+      },
+      {
+        "type": "docker-import",
+        "only": [
+          "{{user `image_name`}}-ports_docker"
+        ],
+        "repository": "{{user `docker_user`}}/freebsd-ports",
+        "tag": "{{user `arch`}}--{{user `osrelease`}}"
+      },
+      {
+        "type": "docker-push",
+        "login" : true,
+        "login_username" : "{{user `docker_user`}}",
+        "login_password" : "{{user `docker_password`}}"
       }
     ]
   ]

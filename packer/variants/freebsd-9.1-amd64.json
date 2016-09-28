@@ -4,5 +4,7 @@
   "iso_url"            : "http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/amd64/ISO-IMAGES/9.1/FreeBSD-9.1-RELEASE-amd64-disc1.iso",
   "virtualbox_os_type" : "FreeBSD_64",
   "vmware_os_type"     : "freebsd-64",
-  "image_name"         : "freebsd-9.1-amd64"
+  "image_name"         : "freebsd-9.1-amd64",
+  "arch"               : "amd64",
+  "osrelease"          : "9.1-RELEASE"
 }

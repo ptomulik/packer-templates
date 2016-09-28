@@ -4,5 +4,7 @@
   "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/releases/amd64/amd64/ISO-IMAGES/10.2/FreeBSD-10.2-RELEASE-amd64-disc1.iso",
   "virtualbox_os_type" : "FreeBSD_64",
   "vmware_os_type"     : "freebsd-64",
-  "image_name"         : "freebsd-10.2-amd64"
+  "image_name"         : "freebsd-10.2-amd64",
+  "arch"               : "amd64",
+  "osrelease"          : "10.2-RELEASE"
 }

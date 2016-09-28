@@ -105,6 +105,24 @@ Building and uploading to `Vagrant Cloud`_
 
 You may also use ``VAGRANTCLOUD_DISABLE`` to prevent uploading to `Vagrant Cloud`_.
 
+Building and importing to `Docker`_ locally
+```````````````````````````````````````````
+
+.. code:: bash
+
+    DOCKER_USER=ptomulik rake freebsd-10.3-amd64
+
+You may also use ``DOCKER_IMPORT_DISABLE`` to prevent uploading to `Vagrant Cloud`_.
+
+Building and pushing to `Docker`_ registry
+````````````````````````````````````````````
+
+.. code:: bash
+
+    DOCKER_USER=ptomulik DOCKER_PASSWORD=<docker-password> rake freebsd-10.3-amd64
+
+You may also use ``DOCKER_PUSH_DISABLE`` to prevent uploading to `Vagrant Cloud`_.
+
 
 Testing built Vagrant boxes
 ```````````````````````````
@@ -140,3 +158,4 @@ Clean generated boxes
 .. _jq: https://stedolan.github.io/jq/
 .. _vagrant-vmware-workstation: https://www.vagrantup.com/vmware/
 .. _Vagrant Cloud: https://vagrantcloud.com/
+.. _Docker: https://docker.com/

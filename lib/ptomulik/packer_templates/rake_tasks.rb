@@ -13,10 +13,22 @@ module PTomulik::PackerTemplates::RakeTasks
     def boxrule(args = {})
       rule( U.boxrule_target(args) => U.boxrule_sources(args) ) do |t|
         name = t.name.sub(/^#{U.boxfile_regexp(args)}$/, '\k<boxname>')
+        pp_filters = []
         filter = ''
         unless ENV['VAGRANTCLOUD_TOKEN'] and ENV['VAGRANTCLOUD_USER'] and (not ENV['VAGRANTCLOUD_DISABLE'] =~ /(yes|true|1)/i)
           # filter-out vagrant-cloud post-processors from template
-          filter += ' .["post-processors"][0] |= map(select(.type!="vagrant-cloud"))'
+          pp_filters << '.type!="vagrant-cloud"'
+        end
+        unless ENV['DOCKER_USER'] and (not ENV['DOCKER_IMPORT_DISABLE'] =~ /(yes|true|1)/i)
+          # filter-out docker-import post-processors from template
+          pp_filters << '.type!="docker-import"'
+        end
+        unless ENV['DOCKER_PASSWORD'] and ENV['DOCKER_USER'] and (not ENV['DOCKER_PUSH_DISABLE'] =~ /(yes|true|1)/i)
+          # filter-out docker-push post-processors from template
+          pp_filters << '.type!="docker-push"'
+        end
+        if pp_filters
+          filter += " .[\"post-processors\"][0] |= map(select(#{pp_filters.join(' and ')}))"
         end
         sh "(jq '#{filter}' '#{t.source}' | packer build -only '#{name}' -var-file='#{t.sources[1]}' -)"
         #sh "packer build -only '#{name}' -var-file='#{t.sources[1]}' '#{t.source}'"

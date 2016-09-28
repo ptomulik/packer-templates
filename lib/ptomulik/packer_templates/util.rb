@@ -7,7 +7,7 @@ module PTomulik; module PackerTemplates; end; end
 #   boxname   := <basename>_<provider>
 #   name      := <ostuple>(-<variant>)?
 #   ostuple   := <system>-<version>-<arch>
-#   provider  := "virtualbox" | "vmware_workstation" | ....
+#   provider  := "virtualbox" | "vmware_workstation" | "docker" | ....
 #   system    := "freebsd" | ...
 #
 # Varfile syntax:
@@ -82,8 +82,15 @@ module PTomulik::PackerTemplates::Util
       $VIRTUALBOX_VERSION = ""
     end
 
+    begin
+      $DOCKER_VERSION ||= `docker version`
+    rescue
+      $DOCKER_VERSION = ""
+    end
+
     @default_providers.push('virtualbox') unless $VIRTUALBOX_VERSION.empty?
     @default_providers.push('vmware_workstation') if $VMWARE_VERSION =~ /VMware Workstation/i
+    @default_providers.push('docker') unless $DOCKER_VERSION.empty?
 
     define_param :systems,            :default => ['freebsd']
     define_param :providers,          :default => @default_providers

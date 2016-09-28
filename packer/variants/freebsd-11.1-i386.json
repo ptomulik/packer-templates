@@ -4,5 +4,7 @@
   "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-i386-disc1.iso",
   "virtualbox_os_type" : "FreeBSD",
   "vmware_os_type"     : "freebsd",
-  "image_name"         : "freebsd-11.1-i386"
+  "image_name"         : "freebsd-11.1-i386",
+  "arch"               : "i386",
+  "osrelease"          : "11.1-RELEASE"
 }
