@@ -1,8 +1,8 @@
 # vim: ft=ruby:
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__),'lib'))
-require 'ptomulik/packer_templates'
-require 'rake'
+require 'ptomulik/packer_templates/util'
+include PTomulik::PackerTemplates::Util::DSL
 
 #
 # How different systems are being configured

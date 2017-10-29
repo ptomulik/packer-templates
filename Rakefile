@@ -1,7 +1,7 @@
 require 'rake/clean'
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__),'lib'))
-require 'ptomulik/packer_templates'
+require 'ptomulik/packer_templates/rake_tasks'
 
 
 # This simply generates a rule for creating boxes from sources

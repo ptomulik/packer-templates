@@ -13,6 +13,7 @@ if [ -e /usr/libexec/bsdinstall/script ]; then
  fetch -o /tmp/bsdinstall.sh "http://$HTTPIP:$HTTPPORT/freebsd/bsdinstall.sh"
  sed -e '/^#!\s*\/bin\/sh/ {' -e 'r /tmp/installer-postconfig.sh' -e 'd' -e'}' -i '' /tmp/bsdinstall.sh
  ifconfig em0 down
+ hostname "freebsd-$OSVERSION"
  bsdinstall script /tmp/bsdinstall.sh
 
 else

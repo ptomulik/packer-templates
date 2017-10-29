@@ -25,7 +25,7 @@ In general
 
     sudo apt-get install ruby rake packer jq
     sudo apt-get purge vagrant
-    VER="1.8.1" && \
+    VER="2.0.0" && \
     wget "https://releases.hashicorp.com/vagrant/${VER}/vagrant_${VER}_x86_64.deb" \
       -O /tmp/vagrant.deb && \
     sudo dpkg -i /tmp/vagrant.deb
@@ -113,7 +113,7 @@ Example
 
 .. code:: bash
 
-  vagrant up freebsd-10.3-amd64
+  vagrant up freebsd-10.3-amd64_virtualbox
 
 Cleaning out
 ````````````
