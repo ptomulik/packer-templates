@@ -96,14 +96,14 @@ shall build all defined architectures and variants of ``FreeBSD 10.3``, or
 
 shall build all defined versions and variants of FreeBSD for amd64 arch.
 
-Building and uploading to atlas
-```````````````````````````````
+Building and uploading to `Vagrant Cloud`_
+``````````````````````````````````````````
 
 .. code:: bash
 
-    ATLAS_USER=ptomulik ATLAS_TOKEN=<atlas-token> rake freebsd-10.3-amd64
+    VAGRANTCLOUD_USER=ptomulik VAGRANTCLOUD_TOKEN=<vagrantcloud-token> rake freebsd-10.3-amd64
 
-You may also use ``ATLAS_DISABLE`` to prevent uploading to atlas.
+You may also use ``VAGRANTCLOUD_DISABLE`` to prevent uploading to `Vagrant Cloud`_.
 
 
 Testing built Vagrant boxes
@@ -139,3 +139,4 @@ Clean generated boxes
 .. _vmware-workstation: https://www.vmware.com/pl/products/workstation
 .. _jq: https://stedolan.github.io/jq/
 .. _vagrant-vmware-workstation: https://www.vagrantup.com/vmware/
+.. _Vagrant Cloud: https://vagrantcloud.com/

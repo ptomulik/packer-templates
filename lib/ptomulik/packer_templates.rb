@@ -203,9 +203,9 @@ module PTomulik::PackerTemplates
       rule( boxrule_target(args) => boxrule_sources(args) ) do |t|
         name = t.name.sub(/^#{boxfile_regexp(args)}$/, '\k<boxname>')
         filter = ''
-        unless ENV['ATLAS_TOKEN'] and ENV['ATLAS_USER'] and (not ENV['ATLAS_DISABLE'] =~ /(yes|true|1)/i)
-          # filter-out atlas post-processors from template
-          filter += ' .["post-processors"][0] |= map(select(.type!="atlas"))'
+        unless ENV['VAGRANTCLOUD_TOKEN'] and ENV['VAGRANTCLOUD_USER'] and (not ENV['VAGRANTCLOUD_DISABLE'] =~ /(yes|true|1)/i)
+          # filter-out vagrant-cloud post-processors from template
+          filter += ' .["post-processors"][0] |= map(select(.type!="vagrant-cloud"))'
         end
         sh "(jq '#{filter}' '#{t.source}' | packer build -only '#{name}' -var-file='#{t.sources[1]}' -)"
         #sh "packer build -only '#{name}' -var-file='#{t.sources[1]}' '#{t.source}'"

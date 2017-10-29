@@ -7,7 +7,8 @@
     "vmware_os_type"      : "freebsd-64",
     "image_version"       : "1.2.3",
     "image_name"          : "freebsd-10.3-amd64",
-    "atlas_username"      : "{{env `ATLAS_USER`}}",
+    "vagrantcloud_user"   : "{{env `VAGRANTCLOUD_USER`}}",
+    "vagrantcloud_token"  : "{{env `VAGRANTCLOUD_TOKEN`}}",
     "boot_wait"           : "40s",
     "ssh_wait_timeout"    : "3600s",
     "ssh_port"            : "22"
@@ -51,7 +52,7 @@
       "ssh_password":         "vagrant",
       "ssh_port":             "{{user `ssh_port`}}",
       "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
-      "shutdown_command":     "sudo poweroff",
+      "shutdown_command":     "sudo halt -p",
       "iso_checksum_type":    "{{user `iso_checksum_type`}}",
       "iso_checksum":         "{{user `iso_checksum`}}",
       "iso_url":              "{{user `iso_url`}}",
@@ -82,7 +83,7 @@
       "ssh_password":         "vagrant",
       "ssh_port":             "{{user `ssh_port`}}",
       "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
-      "shutdown_command":     "sudo poweroff",
+      "shutdown_command":     "sudo halt -p",
       "iso_checksum_type":    "{{user `iso_checksum_type`}}",
       "iso_checksum":         "{{user `iso_checksum`}}",
       "iso_url":              "{{user `iso_url`}}",
@@ -113,7 +114,7 @@
       "ssh_password":         "vagrant",
       "ssh_port":             "{{user `ssh_port`}}",
       "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
-      "shutdown_command":     "sudo poweroff",
+      "shutdown_command":     "sudo halt -p",
       "iso_checksum_type":    "{{user `iso_checksum_type`}}",
       "iso_checksum":         "{{user `iso_checksum`}}",
       "iso_url":              "{{user `iso_url`}}",
@@ -138,7 +139,7 @@
       "ssh_password":         "vagrant",
       "ssh_port":             "{{user `ssh_port`}}",
       "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
-      "shutdown_command":     "sudo poweroff",
+      "shutdown_command":     "sudo halt -p",
       "iso_checksum_type":    "{{user `iso_checksum_type`}}",
       "iso_checksum":         "{{user `iso_checksum`}}",
       "iso_url":              "{{user `iso_url`}}",
@@ -164,56 +165,40 @@
         "output": "packer_{{.BuildName}}.box"
       },
       {
-        "type": "atlas",
+        "type": "vagrant-cloud",
         "only": [
           "{{user `image_name`}}_virtualbox"
         ],
-        "artifact": "{{user `atlas_username`}}/{{user `image_name`}}",
-        "artifact_type": "vagrant.box",
-        "metadata": {
-          "provider": "virtualbox",
-          "version": "{{user `image_version`}}",
-          "description": "A FreeBSD box"
-        }
+        "access_token": "{{user `vagrantcloud_token`}}",
+        "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}",
+        "version": "{{user `image_version`}}"
       },
       {
-        "type": "atlas",
+        "type": "vagrant-cloud",
         "only": [
           "{{user `image_name`}}-ports_virtualbox"
         ],
-        "artifact": "{{user `atlas_username`}}/{{user `image_name`}}-ports",
-        "artifact_type": "vagrant.box",
-        "metadata": {
-          "provider": "virtualbox",
-          "version": "{{user `image_version`}}",
-          "description": "A FreeBSD box with ports preinstalled"
-        }
+        "access_token": "{{user `vagrantcloud_token`}}",
+        "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}-ports",
+        "version": "{{user `image_version`}}"
       },
       {
-        "type": "atlas",
+        "type": "vagrant-cloud",
         "only": [
           "{{user `image_name`}}_vmware_workstation"
         ],
-        "artifact": "{{user `atlas_username`}}/{{user `image_name`}}",
-        "artifact_type": "vagrant.box",
-        "metadata": {
-          "provider": "vmware_workstation",
-          "version": "{{user `image_version`}}",
-          "description": "A FreeBSD box"
-        }
+        "access_token": "{{user `vagrantcloud_token`}}",
+        "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}",
+        "version": "{{user `image_version`}}"
       },
       {
-        "type": "atlas",
+        "type": "vagrant-cloud",
         "only": [
           "{{user `image_name`}}-ports_vmware_workstation"
         ],
-        "artifact": "{{user `atlas_username`}}/{{user `image_name`}}-ports",
-        "artifact_type": "vagrant.box",
-        "metadata": {
-          "provider": "vmware_workstation",
-          "version": "{{user `image_version`}}",
-          "description": "A FreeBSD box with ports preinstalled"
-        }
+        "access_token": "{{user `vagrantcloud_token`}}",
+        "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}-ports",
+        "version": "{{user `image_version`}}"
       }
     ]
   ]

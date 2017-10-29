@@ -1,0 +1,8 @@
+{
+  "iso_checksum_type"  : "sha256",
+  "iso_checksum"       : "e53ae5fc58fd2e28643ba4c64e2c49505cf9d84d22396e3633ee9670782aab57",
+  "iso_url"            : "http://ftp.freebsd.org/pub/FreeBSD/releases/ISO-IMAGES/11.1/FreeBSD-11.1-RELEASE-i386-disc1.iso",
+  "virtualbox_os_type" : "FreeBSD",
+  "vmware_os_type"     : "freebsd",
+  "image_name"         : "freebsd-11.1-i386"
+}
