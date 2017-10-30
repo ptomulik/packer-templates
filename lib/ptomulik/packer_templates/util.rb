@@ -79,7 +79,7 @@ module PTomulik::PackerTemplates::Util
     begin
       $VIRTUALBOX_VERSION ||= `vboxmanage --version`
     rescue
-      $VMWARE_VERSION = ""
+      $VIRTUALBOX_VERSION = ""
     end
 
     @default_providers.push('virtualbox') unless $VIRTUALBOX_VERSION.empty?
