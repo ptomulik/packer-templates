@@ -69,7 +69,7 @@ to see full list of targets. Then build your desired target, for example
 The box will be built and placed in project's top level directory, for example
 as ``packer_freebsd-10.3-amd64_virtualbox.box``.
 
-The boxes are names as follows:
+The boxes are named as follows:
 
 .. code::
 
