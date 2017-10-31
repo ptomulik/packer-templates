@@ -9,13 +9,23 @@ test -e /dev/null || mount -t devfs none /dev
 echo "ifconfig_em0=SYNCDHCP" >> /etc/rc.conf
 echo "sshd_enable=YES" >> /etc/rc.conf
 
-if [ ! -z "$HOSTNAME" ] ; then echo "hostname=\"$HOSTNAME\"" >> /etc/rc.conf; fi
+if [ ! -z "$HOSTNAME" ] ; then
+  echo "hostname=\"$HOSTNAME\"" >> /etc/rc.conf;
+elif [ ! -z `hostname` ]; then
+  echo "hostname=\"`hostname`\"" >> /etc/rc.conf;
+fi
 
 # Add "vagrant" user
 pw groupadd vagrant
 echo "vagrant" | pw useradd vagrant -c "Vagrant User" -m -g vagrant -G wheel -s csh -h 0
 
 # Stop/start networking
+if [ `sysctl -n kern.osreldate` -eq '1200052' ] ; then
+  # https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=223327
+  echo "Applying workaround for #223327..."
+  sysctl kern.chroot_allow_open_directories=2
+fi
+
 service netif restart
 
 OSRELDATE=`sysctl -n kern.osreldate`
@@ -25,7 +35,7 @@ ARCH=`sysctl -n hw.machine_arch`
 
 echo "OSRELDATE: $OSRELDATE"
 echo "OSRELEASE: $OSRELEASE"
-echo "osreldate: $osrelease"
+echo "osrelease: $osrelease"
 
 # Install sudo
 if [ "$OSRELDATE" -ge '902000' ]; then

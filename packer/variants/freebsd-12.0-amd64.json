@@ -1,0 +1,8 @@
+{
+  "iso_checksum_type"  : "sha256",
+  "iso_checksum"       : "4d737d3dd23590b89dc497e882b09195524314bbc3c06ca1e3e450295365130a",
+  "iso_url"            : "https://download.freebsd.org/ftp/snapshots/amd64/amd64/ISO-IMAGES/12.0/FreeBSD-12.0-CURRENT-amd64-20171030-r325156-disc1.iso",
+  "virtualbox_os_type" : "FreeBSD_64",
+  "vmware_os_type"     : "freebsd-64",
+  "image_name"         : "freebsd-12.0-amd64"
+}
