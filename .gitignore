@@ -15,4 +15,5 @@ Gemfile.lock
 packer_cache/
 output-*/
 packer_freebsd-*
+packer_ubuntu-*
 # TODO:

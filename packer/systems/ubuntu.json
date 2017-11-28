@@ -1,0 +1,174 @@
+{
+  "variables": {
+    "iso_checksum_type"   : "sha256",
+    "iso_checksum"        : "af913c00296eb0cfece99b8a02ae6db035ae173ed240241e780c8d7db96914b1",
+    "iso_url"             : "http://releases.ubuntu.com/17.10/ubuntu-17.10-server-amd64.iso",
+    "virtualbox_os_type"  : "Ubuntu_64",
+    "vmware_os_type"      : "ubuntu-64",
+    "image_version"       : "0.0.1",
+    "image_name"          : "ubuntu-17.10-amd64",
+    "vagrantcloud_user"   : "{{env `VAGRANTCLOUD_USER`}}",
+    "vagrantcloud_token"  : "{{env `VAGRANTCLOUD_TOKEN`}}",
+    "boot_wait"           : "5s",
+    "ssh_wait_timeout"    : "3600s",
+    "ssh_port"            : "22"
+  },
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "packer/scripts/ubuntu/setup.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "packer/scripts/ubuntu/vagrant.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "packer/scripts/ubuntu/slapd.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "packer/scripts/ubuntu/cleanup.sh"
+    }
+  ],
+  "builders": [
+    {
+      "type":                 "virtualbox-iso",
+      "name":                 "{{user `image_name`}}-slapd_virtualbox",
+      "vm_name":              "packer-{{user `image_name`}}-slapd",
+      "guest_os_type":        "{{user `virtualbox_os_type`}}",
+      "guest_additions_mode": "disable",
+      "ssh_username":         "vagrant",
+      "ssh_password":         "vagrant",
+      "ssh_port":             "{{user `ssh_port`}}",
+      "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
+      "shutdown_command":     "echo 'vagrant' | sudo -S shutdown -P now",
+      "iso_checksum_type":    "{{user `iso_checksum_type`}}",
+      "iso_checksum":         "{{user `iso_checksum`}}",
+      "iso_url":              "{{user `iso_url`}}",
+      "boot_wait":            "{{user `boot_wait`}}",
+      "boot_command": [
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "/install/vmlinuz<wait>",
+        " auto<wait>",
+        " console-setup/ask_detect=false<wait>",
+        " console-setup/layoutcode=us<wait>",
+        " console-setup/modelcode=pc105<wait>",
+        " debconf/frontend=noninteractive<wait>",
+        " debian-installer=en_US<wait>",
+        " fb=false<wait>",
+        " initrd=/install/initrd.gz<wait>",
+        " kbd-chooser/method=us<wait>",
+        " keyboard-configuration/layout=USA<wait>",
+        " keyboard-configuration/variant=USA<wait>",
+        " locale=en_US<wait>",
+        " netcfg/get_domain=vm<wait>",
+        " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
+        " noapic<wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu/preseed.cfg",
+        " -- <wait>",
+        "<enter><wait>"
+      ],
+      "http_directory": "packer/http",
+      "vboxmanage" : [
+        ["modifyvm", "{{.Name}}", "--memory", "512"],
+        ["modifyvm", "{{.Name}}", "--cpus", "1"]
+      ]
+    },
+    {
+      "type":                 "vmware-iso",
+      "name":                 "{{user `image_name`}}-slapd_vmware_workstation",
+      "vm_name":              "packer-{{user `image_name`}}-slapd",
+      "guest_os_type":        "{{user `vmware_os_type`}}",
+      "ssh_username":         "vagrant",
+      "ssh_password":         "vagrant",
+      "ssh_port":             "{{user `ssh_port`}}",
+      "ssh_wait_timeout":     "{{user `ssh_wait_timeout`}}",
+      "shutdown_command":     "echo 'vagrant' | sudo -S shutdown -P now",
+      "iso_checksum_type":    "{{user `iso_checksum_type`}}",
+      "iso_checksum":         "{{user `iso_checksum`}}",
+      "iso_url":              "{{user `iso_url`}}",
+      "boot_wait":            "{{user `boot_wait`}}",
+      "boot_command": [
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "/install/vmlinuz<wait>",
+        " auto<wait>",
+        " console-setup/ask_detect=false<wait>",
+        " console-setup/layoutcode=us<wait>",
+        " console-setup/modelcode=pc105<wait>",
+        " debconf/frontend=noninteractive<wait>",
+        " debian-installer=en_US<wait>",
+        " fb=false<wait>",
+        " initrd=/install/initrd.gz<wait>",
+        " kbd-chooser/method=us<wait>",
+        " keyboard-configuration/layout=USA<wait>",
+        " keyboard-configuration/variant=USA<wait>",
+        " locale=en_US<wait>",
+        " netcfg/get_domain=vm<wait>",
+        " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
+        " noapic<wait>",
+        " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu/preseed.cfg",
+        " -- <wait>",
+        "<enter><wait>"
+      ],
+      "http_directory": "packer/http"
+    }
+  ],
+  "post-processors": [
+    [
+      {
+        "type": "vagrant",
+        "vagrantfile_template": "packer/vagrant/ubuntu.rb",
+        "output": "packer_{{.BuildName}}.box"
+      },
+      {
+        "type": "vagrant-cloud",
+        "only": [
+          "{{user `image_name`}}_virtualbox"
+        ],
+        "access_token": "{{user `vagrantcloud_token`}}",
+        "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}",
+        "version": "{{user `image_version`}}"
+      },
+      {
+        "type": "vagrant-cloud",
+        "only": [
+          "{{user `image_name`}}-slapd_virtualbox"
+        ],
+        "access_token": "{{user `vagrantcloud_token`}}",
+        "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}-slapd",
+        "version": "{{user `image_version`}}"
+      },
+      {
+        "type": "vagrant-cloud",
+        "only": [
+          "{{user `image_name`}}_vmware_workstation"
+        ],
+        "access_token": "{{user `vagrantcloud_token`}}",
+        "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}",
+        "version": "{{user `image_version`}}"
+      },
+      {
+        "type": "vagrant-cloud",
+        "only": [
+          "{{user `image_name`}}-slapd_vmware_workstation"
+        ],
+        "access_token": "{{user `vagrantcloud_token`}}",
+        "box_tag": "{{user `vagrantcloud_user`}}/{{user `image_name`}}-slapd",
+        "version": "{{user `image_version`}}"
+      }
+    ]
+  ]
+}

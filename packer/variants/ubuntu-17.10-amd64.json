@@ -1,0 +1,8 @@
+{
+  "iso_checksum_type"  : "sha256",
+  "iso_checksum"       : "af913c00296eb0cfece99b8a02ae6db035ae173ed240241e780c8d7db96914b1",
+  "iso_url"            : "http://releases.ubuntu.com/17.10/ubuntu-17.10-server-amd64.iso",
+  "virtualbox_os_type" : "Ubuntu_64",
+  "vmware_os_type"     : "ubuntu-64",
+  "image_name"         : "ubuntu-17.10-amd64"
+}

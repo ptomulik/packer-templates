@@ -15,6 +15,13 @@ def freebsd(cfg, boxfile, args={})
   cfg.vm.box_url  = "file://#{File.dirname(__FILE__)}/#{boxfile}"
 end
 
+def ubuntu(cfg, boxfile, args={})
+  cfg.ssh.shell   = 'sh'
+  cfg.vm.guest    = :ubuntu
+  cfg.vm.box      = "#{boxname_in_boxfile(boxfile, args)}"
+  cfg.vm.box_url  = "file://#{File.dirname(__FILE__)}/#{boxfile}"
+end
+
 #
 # Driver...
 #
