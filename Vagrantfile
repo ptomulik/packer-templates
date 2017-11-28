@@ -7,25 +7,26 @@ include PTomulik::PackerTemplates::Util::DSL
 #
 # How different systems are being configured
 #
-
-def freebsd(cfg, boxfile, args={})
+def common(cfg, boxfile, args={})
   cfg.ssh.shell   = 'sh'
-  cfg.vm.guest    = :freebsd
   cfg.vm.box      = "#{boxname_in_boxfile(boxfile, args)}"
   cfg.vm.box_url  = "file://#{File.dirname(__FILE__)}/#{boxfile}"
 end
 
+def freebsd(cfg, boxfile, args={})
+  cfg.vm.guest    = :freebsd
+  common(cfg, boxfile, args)
+end
+
 def ubuntu(cfg, boxfile, args={})
-  cfg.ssh.shell   = 'sh'
   cfg.vm.guest    = :ubuntu
-  cfg.vm.box      = "#{boxname_in_boxfile(boxfile, args)}"
-  cfg.vm.box_url  = "file://#{File.dirname(__FILE__)}/#{boxfile}"
+  common(cfg, boxfile, args)
 end
 
 #
 # Driver...
 #
-Vagrant.configure(2) do |config|
+Vagrant.configure("2") do |config|
   args = {}
   boxes = []
   boxfiles(args).map do |boxfile|
